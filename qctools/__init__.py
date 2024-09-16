@@ -1,1 +1,1 @@
-from qctools import config  # noqa: F401
+from qctools import config, test  # noqa: F401
