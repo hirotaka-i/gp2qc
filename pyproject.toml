@@ -10,13 +10,10 @@ authors = [
   { name = "hiro" },
 ]
 dependencies = [
-    "python-dotenv",
-    "numpy",
     "pandas",
-    "typer",
-    "loguru",
-    "tqdm"
+    "google-cloud-storage",
 ]
+
 readme = "README.md"
 classifiers = [
     "Programming Language :: Python :: 3",
