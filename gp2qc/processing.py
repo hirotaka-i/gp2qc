@@ -7,6 +7,12 @@ from io import BytesIO
 # Initialize the Google Cloud Storage bucket
 bucket = storage.Client().bucket('eu-samplemanifest')
 
+# function to list up the blobs
+def list_blobs(study):
+    blobs = bucket.list_blobs(prefix=f"{study}/{study}")
+    file_list = [blob.name for blob in blobs]
+    print(file_list)
+
 # Function to read a file from Google bucket and process it
 def read_file_and_process(file_name, mid):
     blob = bucket.blob(file_name)
