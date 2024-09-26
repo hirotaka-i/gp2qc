@@ -28,16 +28,17 @@ def find_inconsistency(df, col_to_check):
     return t_prob
 
 class StudyManifestHandler:
-    def __init__(self, study, master_sheet_path, bucket_name='eu-samplemanifest'):
+    def __init__(self, processor, master_sheet_path, bucket_name='eu-samplemanifest'):
         """
-        Initialize the handler with the study and the path to the master sheet.
+        Initialize the handler with the processor instance and the path to the master sheet.
         
         Args:
-            study (str): The study code.
+            processor (object): An instance of a class that contains the study and the manifest data.
             master_sheet_path (str): Path to the master sheet CSV file.
             bucket_name (str): Name of the GCS bucket. Defaults to 'eu-samplemanifest'.
         """
-        self.study = study
+        self.processor = processor
+        self.study = processor.study  # Study is now retrieved from the processor instance
         self.master_sheet_path = master_sheet_path
         self.bucket_name = bucket_name
         self.storage_client = storage.Client()
@@ -60,7 +61,7 @@ class StudyManifestHandler:
         folder_path = f'/content/drive/Shareddrives/EUR_GP2/CIWG/sample_manifest/finalized/{self.study}'
 
         if not os.path.exists(folder_path):
-            raise FileNotFoundError(f"Finalized folder path '{folder_path}' not found. Please created the folder.")
+            raise FileNotFoundError(f"Finalized folder path '{folder_path}' not found. Please create the folder.")
 
         files = glob.glob(os.path.join(folder_path, '*.csv'))
 
@@ -91,19 +92,16 @@ class StudyManifestHandler:
             print('No manifests found in the master sheet and finalized folder. No consistency check needed.')
         else:
             print(f'Number of samples from all previous submissions:\n{mf["manifest_id"].value_counts()}')
+            print('Do combine_study_manifests to combine the current manifest with the previous manifests')
         
             self.mf = mf  # Store the result in the class attribute
 
-    def combine_study_manifests(self, df):
+    def combine_study_manifests(self):
         """
-        Combines the current manifest DataFrame with the previous manifest DataFrame stored in `self.mf`.
-
-        Args:
-            df (pd.DataFrame): The current manifest DataFrame.
-
-        Returns:
-            pd.DataFrame: Combined DataFrame.
+        Combines the current manifest DataFrame from the processor with the previous manifest DataFrame stored in `self.mf`.
         """
+        df = self.processor.df  # Get the current manifest from the processor instance
+
         if self.mf.empty:
             raise ValueError("Previous manifests (mf) are empty. Forgot load_previous_manifests?")
         else:
@@ -128,6 +126,8 @@ class StudyManifestHandler:
                 df_all = df_all.drop(columns=rm_cols)
 
             self.df_all = df_all
+            print(f'Combined DataFrame has {df_all.shape[0]} rows and {df_all.shape[1]} columns')
+            print('Do check_inconsistencies to check for inconsistencies in the combined DataFrame')
     
     def check_inconsistencies(self, columns_to_check):
         """
