@@ -72,7 +72,7 @@ class GP2SampleManifesstProcessor:
         self.df_original = self.df.copy()
         print(f"manifest_id={mid} assigned to the data.")
     
-    def base_check(self):
+    def basic_check(self):
         """
         Perform the base check on the processed DataFrame.
         """
