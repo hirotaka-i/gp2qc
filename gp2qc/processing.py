@@ -6,6 +6,30 @@ from io import BytesIO
 from .base_check import base_check
 import glob
 
+
+def extract_qc_version_and_number(file_name):
+    """
+    Extracts the selfQC version and the number (up to 8 digits) from the file name.
+
+    Args:
+    - file_name (str): The name of the file containing the desired information.
+
+    Returns:
+    - tuple: A tuple containing the selfQC version and the number, or (None, None) if not found.
+    """
+    # Regular expression to match 'selfQCV' followed by any number and then a number up to 8 digits
+    pattern = r'(selfQCV\d+)_(\d{1,8})'
+
+    # Search for the pattern in the file name
+    match = re.search(pattern, file_name)
+
+    if match:
+        self_qc = match.group(1)  # Get 'selfQCV' with any version number
+        number = match.group(2)   # Get the number up to 8 digits
+        return f'{self_qc}_{number}'
+    else:
+        raise ValueError(f"selfQCVx and date required in the {file_name}")
+
 class GP2SampleManifesstProcessor:
     def __init__(self, bucket_name):
         # Initialize the Google Cloud Storage client and bucket
@@ -53,13 +77,16 @@ class GP2SampleManifesstProcessor:
         Read a file from Google Cloud Storage and process it into a pandas DataFrame.
         """
         self.mid = mid
+        extract_file_name = extract_qc_version_and_number(self.file_name)
+        self.save_file_name = f'{self.study}_{extract_file_name}_{self.mid}.csv'
 
         # Process the file based on its type
         if '_selfQCV2_' in self.file_name:
-            manifest_id = self.df.manifest_id.unique()[0]
-            if mid == manifest_id:
-                save_file_name = self.file_name.replace('.xlsx', '.csv')
-            else:
+            manifest_ids = self.df.manifest_id.unique()
+            if len(manifest_ids)>1:
+                raise ValueError(f'multiple manifest ID in the file: {manifest_ids}')
+            manifest_id = manifest_ids[0]
+            if mid != manifest_id:
                 raise ValueError(f'manifest_id={manifest_id} in data: Not consistent with mid({mid})')
         elif '_selfQCV3_' in self.file_name:
             self.df['manifest_id'] = mid
@@ -68,7 +95,7 @@ class GP2SampleManifesstProcessor:
             raise ValueError('Not selfQCV2 or V3')
         
         # Add filename column to the dataframe
-        self.df['filename'] = save_file_name
+        self.df['filename'] = self.save_file_name
         self.df_original = self.df.copy()
         print(f"manifest_id={mid} assigned to the data.")
     

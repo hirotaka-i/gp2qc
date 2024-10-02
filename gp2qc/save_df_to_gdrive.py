@@ -17,10 +17,11 @@ def save_df_to_gdrive(processor, root_path='/content/drive/Shareddrives/EUR_GP2/
     if len(file_name) > 1:
         raise ValueError(f'More than one file name: {file_name}')
 
-    save_file_name = file_name[0].replace('.xlsx', '.csv')
-
     # Construct the full save path
-    save_path = os.path.join(root_path, save_file_name)
+    if processor.save_file_name != file_name[0]
+        raise ValueError(f'{processor.save_file_name} is different from the filename in the df: {file_name[0]}')
+    
+    save_path = os.path.join(root_path, processor.save_file_name)
 
     # Check if the subdirectory exists, if not, raise an error
     subdirectory_path = os.path.dirname(save_path)
@@ -30,7 +31,7 @@ def save_df_to_gdrive(processor, root_path='/content/drive/Shareddrives/EUR_GP2/
     else:
         # Check if the file exists
         if os.path.exists(save_path):
-            user_input = input(f"The file {save_file_name} already exists. Do you want to overwrite it? (yes/no): ").strip().lower()
+            user_input = input(f"The file {processor.save_file_name} already exists. Do you want to overwrite it? (yes/no): ").strip().lower()
             if user_input != 'yes':
                 print("File not overwritten.")
                 return
