@@ -108,15 +108,19 @@ class GP2SampleManifesstProcessor:
             raise ValueError("No data loaded. Please read_file_and_process first.")
         elif not hasattr(self, 'df_original'):
             raise ValueError("manifest_id needs to be assigned. Please assign_manifest_id first.")
-        
-        try :
-            if self.df.equals(self.df_original):
-                base_check(self.df_original)
-            else:
-                print("\nWARNING!! base_check on the modified dataframe.\n")
-                base_check(self.df)
-        except:
-            raise ValueError("df seems to be not a pandas DataFrame.")
+
+        # make sure df and df_original are pd.DataFrame.
+        if not isinstance(self.df, pd.DataFrame):
+            raise TypeError("df is not a pandas DataFrame.")
+        if not isinstance(self.df_original, pd.DataFrame):
+            raise TypeError("df_original is not a pandas DataFrame.")
+
+        # base_check
+        if self.df.equals(self.df_original):
+            base_check(self.df_original)
+        else:
+            print("\nWARNING!! base_check on the modified dataframe.\n")
+            base_check(self.df)
             
 
     def show_phenotype_summary(self):
