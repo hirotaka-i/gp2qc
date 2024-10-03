@@ -18,7 +18,7 @@ def save_df_to_gdrive(processor, root_path='/content/drive/Shareddrives/EUR_GP2/
         raise ValueError(f'More than one file name: {file_name}')
 
     # Construct the full save path
-    if processor.save_file_name != file_name[0]
+    if processor.save_file_name != file_name[0]:
         raise ValueError(f'{processor.save_file_name} is different from the filename in the df: {file_name[0]}')
     
     save_path = os.path.join(root_path, processor.save_file_name)
