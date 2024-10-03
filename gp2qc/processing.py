@@ -5,6 +5,7 @@ from google.cloud import storage
 from io import BytesIO
 from .base_check import base_check
 import glob
+import re
 
 
 def extract_qc_version_and_number(file_name):
