@@ -44,6 +44,7 @@ class StudyManifestHandler:
         self.storage_client = storage.Client()
         self.bucket = self.storage_client.get_bucket(bucket_name)
         self.mf = pd.DataFrame()  # Attribute to store the previous manifests
+        print('Instance created. \n1. load_previous_manifests()\n2. combine_study_manifests()\n3. check_inconsistencies()')
 
     def load_previous_manifests(self):
         """
