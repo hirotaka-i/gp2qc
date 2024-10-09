@@ -9,13 +9,11 @@ def check_columns_exist(df, required_columns):
     missing_cols = np.setdiff1d(required_columns, df.columns)
     if missing_cols.size > 0:
         raise ValueError(f"Missing columns: {missing_cols}. Please use the template sheet.")
-
 def check_unexpected_columns(df, expected_columns):
     """Check for any unexpected columns in the dataframe."""
     unexpected_cols = np.setdiff1d(df.columns, expected_columns)
     if unexpected_cols.size > 0:
         raise ValueError(f"Unexpected columns: {unexpected_cols}. Please use the template sheet.")
-
 def check_missing_data(df, required_columns):
     """Check for missing data in required columns, list missing columns, and report the first 30 entries with missing data."""
     df_check = df[required_columns].copy()
@@ -26,7 +24,10 @@ def check_missing_data(df, required_columns):
         missing_columns = missing_data_summary[missing_data_summary > 0].index.tolist()
         error_msg = (f"Missing entries found in required columns: {', '.join(missing_columns)}")
         raise ValueError(error_msg)
-
+        
+def check_one_study(df):
+    if len(df.study.unique())>1:
+        raise ValueError(f"More than one study in the file: {df.study.unique()}")
 
 def check_unique_ids(df):
     """Check if Sample Identities (sample_id) are unique within each study within the dataframe."""
@@ -157,6 +158,7 @@ def base_check(df):
     check_columns_exist(df, all_cols)
     check_unexpected_columns(df, all_cols)
     check_missing_data(df, required_cols)
+    check_one_study(df)
     check_unique_ids(df)
     check_clinical_identity(df, base_cols)
     validate_allowed_values(df)
