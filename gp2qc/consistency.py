@@ -3,6 +3,7 @@ import glob
 import pandas as pd
 import numpy as np
 from google.cloud import storage
+from .base_check import base_check
 
 #### Sub function to the "check_inconsistencies" function
 def find_inconsistency(df, col_to_check):
@@ -137,6 +138,8 @@ class StudyManifestHandler:
         Args:
             columns_to_check (list): List of columns to check for inconsistencies.
         """
+        print('Conduct the basic check first')
+        base_check(self.df_all)
         self.inconsistency = False  # Flag to indicate if inconsistencies are found
         for col_to_check in columns_to_check:
             dt_prob = find_inconsistency(self.df_all, col_to_check)
