@@ -141,7 +141,7 @@ def validate_specific_conditions(df):
         print('Control-GP2_phenotype assigned for study_type=="Prodromal". Is it rather "Prodromal"?')
 
 ##### This is the main function #####
-def base_check(df):
+def base_check(df, master_file=False):
     base_cols = ['study', 'GP2ID', 'clinical_id', 'GP2sampleID', 'sample_id', 'study_type', 'GP2_phenotype']
     required_cols = base_cols + ['study_arm', 'diagnosis', 'biological_sex_for_qc',
                                  'race_for_qc', 'family_history_for_qc', 'region_for_qc',
@@ -158,7 +158,10 @@ def base_check(df):
     check_columns_exist(df, all_cols)
     check_unexpected_columns(df, all_cols)
     check_missing_data(df, required_cols)
-    check_one_study(df)
+    
+    if not master_file: # skip if master_file
+        check_one_study(df)
+    
     check_unique_ids(df)
     check_clinical_identity(df, base_cols)
     validate_allowed_values(df)
