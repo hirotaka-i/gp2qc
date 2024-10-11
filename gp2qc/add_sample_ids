@@ -7,7 +7,7 @@ bucket_name = 'eu-samplemanifest'
 storage_client = storage.Client()
 bucket = storage_client.get_bucket(bucket_name)
 
-def add_entries_to_gp2idsmapper(df):
+def add_sample_ids(df):
     """
     Adds entries from a DataFrame to GP2IDSMAPPER.json.
     
