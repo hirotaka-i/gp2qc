@@ -22,8 +22,10 @@ def add_sample_ids(df):
         raise ValueError("Duplicate GP2 sample IDs found in the DataFrame.")
     
     # check if the string in the GP2sampleID starts with the string in the study column
-    if not all(df['GP2sampleID'].str.startswith(df['study'])):
-        raise ValueError("GP2sampleID does not start with the study name.")
+    mismatch = df.apply(lambda row: not row['GP2sampleID'].startswith(row['study']), axis=1)
+    if mismatch.any():
+        mismatched_rows = df[mismatch]
+        raise ValueError(f"GP2sampleID does not start with the study name for these rows:\n{mismatched_rows}")
         
     print("Starting entry addition process...")
     print('sample_ids to add:')
