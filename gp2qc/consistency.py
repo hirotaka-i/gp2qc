@@ -85,7 +85,7 @@ class StudyManifestHandler:
             print('New manifests in finalized folder not yet in the master sheet:')
             for path_i in new_manifest_paths:
                 print(f' Adding: {path_i}')
-                df_i = pd.read_csv(path_i)
+                df_i = pd.read_csv(path_i, dtype={"sample_id": 'string', 'clinical_id': 'string'})
                 mf = pd.concat([mf, df_i], ignore_index=True)
         else:
             print('No new manifest to add from the finalized folder')
