@@ -44,9 +44,15 @@ class GP2SampleManifesstProcessor:
         and allow the user to choose a file by number.
         """
         self.study = study
-        blobs1 = self.bucket.list_blobs(prefix=f"{study}/{study}")
-        blobs2 = self.bucket.list_blobs(prefix=f"{study.split('-')[0]}/{study}")
-        file_list = [blob.name for blob in list(blobs1) + list(blobs2)]
+        blobs1 = list(self.bucket.list_blobs(prefix=f"{study}/{study}"))
+        # Check if 'study' contains a hyphen, and only then list blobs with the modified prefix
+        if '-' in study:
+            blobs2 = list(self.bucket.list_blobs(prefix=f"{study.split('-')[0]}/{study}"))
+        else:
+            blobs2 = []  # Empty list if no hyphen
+        
+        # Create the list of file names, concatenating blobs1 and blobs2
+        file_list = [blob.name for blob in blobs1 + blobs2]
         
         # Display the files with numbers
         print(f"\nBlobs in bucket for study {study}:")
