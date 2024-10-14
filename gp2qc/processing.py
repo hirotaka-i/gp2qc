@@ -44,8 +44,9 @@ class GP2SampleManifesstProcessor:
         and allow the user to choose a file by number.
         """
         self.study = study
-        blobs = self.bucket.list_blobs(prefix=f"{study}/{study}")
-        file_list = [blob.name for blob in blobs]
+        blobs1 = self.bucket.list_blobs(prefix=f"{study}/{study}")
+        blobs2 = self.bucket.list_blobs(prefix=f"{study.split('-')[0]}/{study}")
+        file_list = [blob.name for blob in list(blobs1) + list(blobs2)]
         
         # Display the files with numbers
         print(f"\nBlobs in bucket for study {study}:")
