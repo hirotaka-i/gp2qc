@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 from google.cloud import storage
 from .base_check import base_check
+from .check_idstracker import check_idstracker
 
 #### Sub function to the "check_inconsistencies" function
 def find_inconsistency(df, col_to_check):
@@ -152,4 +153,9 @@ class StudyManifestHandler:
                 print(f'PASS: {col_to_check}')
 
         if not self.inconsistency:
-            print('All checks passed. No inconsistencies found. Please save the file')
+            print('> No inconsistencies found.')
+
+        print("Additionally check the ID consistency with the ID system")
+        check_idstracker(self.bucket, self.study, self.df_all)
+
+        

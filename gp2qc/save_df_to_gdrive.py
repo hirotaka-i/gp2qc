@@ -1,5 +1,6 @@
 import os
 from .base_check import base_check
+from .check_idstracker import check_idstracker
 
 def save_df_to_gdrive(processor, root_path='/content/drive/Shareddrives/EUR_GP2/CIWG/sample_manifest/finalized'):
     """
@@ -9,8 +10,9 @@ def save_df_to_gdrive(processor, root_path='/content/drive/Shareddrives/EUR_GP2/
         processor (GP2SampleManifestProcessor): An instance of the class containing `self.df`.
         root_path (str): Path to save the combined manifest DataFrame.
     """    
-    base_check(processor.df)  
-    
+    base_check(processor.df)
+    check_idstracker(processor.bucket, processor.study, processor.df)
+
     # Get the file name from the dataframe
     file_name = processor.df['filename'].unique()
 

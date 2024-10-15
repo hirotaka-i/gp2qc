@@ -172,3 +172,5 @@ cython_debug/
 #.idea/
 
 test.py
+sm_test.py
+client_secrets.json
