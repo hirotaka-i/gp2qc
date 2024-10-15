@@ -58,15 +58,17 @@ def remove_sample_ids(ids, study_code):
                 study_ids.pop(sample_id, None)
             
             print(f"{len(ids_to_remove)} sample IDs have been deleted for {study_code}.")
+
+        # Save the updated masterids to GP2IDSMAPPER.json
+        try:
+            blob_id.upload_from_string(json.dumps(masterids, indent=4))
+            print("Updated GP2IDSMAPPER.json saved successfully.")
+        except Exception as e:
+            print(f"Error saving updated IDs: {e}")
+            return
+        print("ID removal process completed.")
+
     else:
         print(f"No matching study code {study_code} found in GP2IDSMAPPER.json.")
+        print("No changes were made.")
 
-    # Save the updated GP2IDSMAPPER.json
-    try:
-        blob_id.upload_from_string(json.dumps(masterids, indent=4))
-        print("Updated GP2IDSMAPPER.json saved successfully.")
-    except Exception as e:
-        print(f"Error saving updated IDs: {e}")
-        return
-
-    print("ID removal process completed.")
