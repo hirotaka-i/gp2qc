@@ -140,6 +140,17 @@ class StudyManifestHandler:
             columns_to_check (list): List of columns to check for inconsistencies.
         """
         print('Conduct the basic check first')
+        
+        # GP2sampleIDs to be removed due to the same sample_id (issues before R7)
+        GP2sampleID_rm_list_path='/content/drive/Shareddrives/EUR_GP2/CIWG/tools/R7_GP2sampleID_with_same_sample_id.txt'
+        with open(GP2sampleID_rm_list_path, 'r') as f:
+            GP2sampleID_rm_list = [line.strip() for line in f]
+        GP2sampleID_rm = np.intersect1d(self.df_all.GP2sampleID, GP2sampleID_rm_list)
+        if len(GP2sampleID_rm)>0:
+            print('Removing the following GP2sampleID from df_all (Legacy problem of having the same sample_id)')
+            print(GP2sampleID_rm)
+        self.df_all = self.df_all[~self.df_all.GP2sampleID.isin(GP2sampleID_rm)].copy()
+        
         base_check(self.df_all)
         self.inconsistency = False  # Flag to indicate if inconsistencies are found
         for col_to_check in columns_to_check:
