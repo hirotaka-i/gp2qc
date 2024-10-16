@@ -147,9 +147,10 @@ class StudyManifestHandler:
             GP2sampleID_rm_list = [line.strip() for line in f]
         GP2sampleID_rm = np.intersect1d(self.df_all.GP2sampleID, GP2sampleID_rm_list)
         if len(GP2sampleID_rm)>0:
-            print('Removing the following GP2sampleID from df_all (Legacy problem of having the same sample_id)')
-            print(GP2sampleID_rm)
-        self.df_all = self.df_all[~self.df_all.GP2sampleID.isin(GP2sampleID_rm)].copy()
+            # removing the GP2ID all together
+            GP2ID_to_rm = self.df_all[self.df_all.GP2sampleID.isin(GP2sampleID_rm)].GP2ID.unique() 
+            print(f'Removed {len(GP2ID_to_rm} GP2ID from df_all (Legacy problem of the same sample_id for different samples)')
+            self.df_all = self.df_all[~self.df_all.GP2ID.isin(GP2ID_to_rm)].copy()
         
         base_check(self.df_all)
         self.inconsistency = False  # Flag to indicate if inconsistencies are found
@@ -166,6 +167,7 @@ class StudyManifestHandler:
         if not self.inconsistency:
             print('> No inconsistencies found.')
 
+        # IDSTRACKER check
         print("Additionally check the ID consistency with the ID system")
         check_idstracker(self.bucket, self.study, self.df_all)
 
