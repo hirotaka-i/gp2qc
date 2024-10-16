@@ -149,7 +149,7 @@ class StudyManifestHandler:
         if len(GP2sampleID_rm)>0:
             # removing the GP2ID all together
             GP2ID_to_rm = self.df_all[self.df_all.GP2sampleID.isin(GP2sampleID_rm)].GP2ID.unique() 
-            print(f'Removed {len(GP2ID_to_rm} GP2ID from df_all (Legacy problem of the same sample_id for different samples)')
+            print(f'Removed {len(GP2ID_to_rm)} GP2ID from df_all (Legacy problem of the same sample_id for different samples)')
             self.df_all = self.df_all[~self.df_all.GP2ID.isin(GP2ID_to_rm)].copy()
         
         base_check(self.df_all)
