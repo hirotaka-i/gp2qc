@@ -19,7 +19,7 @@ def extract_qc_version_and_number(file_name):
     - tuple: A tuple containing the selfQC version and the number, or (None, None) if not found.
     """
     # Regular expression to match 'selfQCV' followed by any number and then a number up to 8 digits
-    pattern = r'(selfQC(?:V\d+)?)_(\d{4}-\d{2}-\d{2}|\d{8})'
+    pattern = r'(selfQC(?:V\d+)?)_(\d{4}-\d{2}-\d{2}|\d{6,8})'
 
     # Search for the pattern in the file name
     match = re.search(pattern, file_name)
