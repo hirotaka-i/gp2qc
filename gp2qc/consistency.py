@@ -147,10 +147,14 @@ class StudyManifestHandler:
             GP2sampleID_rm_list = [line.strip() for line in f]
         GP2sampleID_rm = np.intersect1d(self.df_all.GP2sampleID, GP2sampleID_rm_list)
         if len(GP2sampleID_rm)>0:
-            # removing the GP2ID all together
-            GP2ID_to_rm = self.df_all[self.df_all.GP2sampleID.isin(GP2sampleID_rm)].GP2ID.unique() 
-            print(f'Removed {len(GP2ID_to_rm)} GP2ID from df_all (Legacy problem of the same sample_id for different samples)')
-            self.df_all = self.df_all[~self.df_all.GP2ID.isin(GP2ID_to_rm)].copy()
+            # list of GP2ID to resolve
+            GP2ID_to_resolve = self.df_all[self.df_all.GP2sampleID.isin(GP2sampleID_rm)].GP2ID.unique() 
+            print(f'Removed {len(GP2sampleID_rm)} GP2sampleID from df_all (Legacy problem of the same sample_id for different samples)')
+            self.df_all = self.df_all[~self.df_all.GP2sampleID.isin(GP2sampleID_rm)].copy()
+            
+            # Additionally get the list of potentially missing GP2sampleID in the system (Lecacy Problem)
+            # e.g. s1 was kept in the manifest but IDSTRACKER kept s2 because of the new sample getting s3.
+            GP2sampleID_ignore = self.df_all[self.df_all.GP2ID.isin(GP2ID_to_resolve)].GP2sampleID
         
         base_check(self.df_all)
         self.inconsistency = False  # Flag to indicate if inconsistencies are found
@@ -169,6 +173,6 @@ class StudyManifestHandler:
 
         # IDSTRACKER check
         print("Additionally check the ID consistency with the ID system")
-        check_idstracker(self.bucket, self.study, self.df_all)
+        check_idstracker(self.bucket, self.study, self.df_all[~self.df_all.GP2sampleID.isin(GP2sampleID_ignore)])
 
         
