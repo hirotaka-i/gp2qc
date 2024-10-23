@@ -161,6 +161,8 @@ class StudyManifestHandler:
         self.inconsistency = False  # Flag to indicate if inconsistencies are found
         for col_to_check in columns_to_check:
             dt_prob = find_inconsistency(self.df_all, col_to_check)
+            # limit to the current df
+            df_prob = df_prob[df_prob.GP2ID.isin(self.processor.df.GP2ID)].copy()
             if len(dt_prob) > 0:
                 file_path = f'inconsistency_{col_to_check}.csv'
                 print(f'FAIL: {col_to_check} {len(dt_prob)} entries are inconsistent --> File saved')
