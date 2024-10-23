@@ -15,10 +15,6 @@ def find_inconsistency(df, col_to_check):
     # Filter only those rows with inconsistent GP2IDs
     t = df[df.GP2ID.isin(inconsistent_gp2ids)][['GP2ID', 'SampleRepNo', col_to_check]].copy()
 
-
-    if t.empty:
-        return pd.DataFrame()
-
     # pivot the table
     t_pivot = t.pivot(index='GP2ID', columns='SampleRepNo', values=col_to_check)
     t_pivot.columns = [f"{col_to_check}_{col}" for col in t_pivot.columns]
