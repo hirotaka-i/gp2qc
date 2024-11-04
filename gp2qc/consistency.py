@@ -109,7 +109,7 @@ class StudyManifestHandler:
                 print("Proceeding with the first manifest.")
                 self.df_all = df
             else:
-                print("Please do load_previous_manifests before proceeding.")
+                raise ValueError("Please do load_previous_manifests > combine_study_manifests before proceeding.")
         
         else:
             if len(np.union1d(df.study.unique(), self.mf.study.unique())) > 1:
