@@ -99,10 +99,18 @@ class StudyManifestHandler:
         """
         Combines the current manifest DataFrame from the processor with the previous manifest DataFrame stored in `self.mf`.
         """
-        df = self.processor.df  # Get the current manifest from the processor instance
+        df = self.processor.df.copy()  # Get the current manifest from the processor instance
 
         if self.mf.empty:
-            raise ValueError("Previous manifests (mf) are empty. Forgot load_previous_manifests?")
+            print("Previous manifests (mf) are empty. Forgot to load previous manifests?")
+            proceed = input("Is this the first manifest? (yes/no): ").strip().lower()
+            
+            if proceed == 'yes':
+                print("Proceeding with the first manifest.")
+                self.df_all = df
+            else:
+                print("Please do load_previous_manifests before proceeding.")
+        
         else:
             if len(np.union1d(df.study.unique(), self.mf.study.unique())) > 1:
                 raise ValueError('Different study names detected')
