@@ -7,6 +7,19 @@ bucket_name = 'eu-samplemanifest'
 storage_client = storage.Client()
 bucket = storage_client.get_bucket(bucket_name)
 
+
+def detect_unusal_strings(s):
+    # function to identify non standard pattern values in the series
+    non_standard_pattern = r'[^\w\-/(). :=]|^\s|\s$|[^\x00-\x7F]'
+    idx = s.str.contains(non_standard_pattern)
+  
+    # return error if any non standard pattern is found
+    if idx.any():
+        raise ValueError(f"Non-standard pattern found in the following values:\n{s[idx]}")
+    else:
+        print('OK')
+        return None
+
 def add_sample_ids(df):
     """
     Adds entries from a DataFrame to GP2IDSMAPPER.json.
@@ -26,11 +39,17 @@ def add_sample_ids(df):
     if mismatch.any():
         mismatched_rows = df[mismatch]
         raise ValueError(f"GP2sampleID does not start with the study name for these rows:\n{mismatched_rows}")
-        
+    
+
     print("Starting entry addition process...")
     print('sample_ids to add:')
     print(df.study.value_counts())
     
+    print('sample_id format check:')
+    detect_unusal_strings(df['sample_id'])
+    print('clinical_id format check:')
+    detect_unusal_strings(df['clinical_id'])
+
     # Load the ID data from GP2IDSMAPPER.json
     blob_id = bucket.blob('IDSTRACKER/GP2IDSMAPPER.json')
     try:
