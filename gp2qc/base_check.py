@@ -168,8 +168,8 @@ def base_check(df, master_file=False):
     validate_allowed_values(df)
     validate_specific_conditions(df)
 
-    print('> All checks passed!')
-    print('Study arms and phenotype summaries')
+    print('> All checks passed!\n')
+    print('Study arms and phenotype summaries:\n')
     print(df.groupby(['study_arm', 'study_type', 'diagnosis', 'GP2_phenotype']).size())
     # print comments if multiple diagnosis in the same study_arm
     if df.drop_duplicates(['study_arm', 'diagnosis']).groupby(['study_arm']).size().max()>1:
