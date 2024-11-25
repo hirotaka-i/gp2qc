@@ -140,6 +140,7 @@ def validate_specific_conditions(df):
     if not dp.empty:
         print('Control-GP2_phenotype assigned for study_type=="Prodromal". Is it rather "Prodromal"?')
 
+
 ##### This is the main function #####
 def base_check(df, master_file=False):
     base_cols = ['study', 'GP2ID', 'clinical_id', 'GP2sampleID', 'sample_id', 'study_type', 'GP2_phenotype']
@@ -168,3 +169,10 @@ def base_check(df, master_file=False):
     validate_specific_conditions(df)
 
     print('> All checks passed!')
+    print('Study arms and phenotype summaries')
+    print(df.groupby(['study_arm', 'study_type', 'diagnosis', 'GP2_phenotype']).size())
+    # print comments if multiple diagnosis in the same study_arm
+    if df.drop_duplicates(['study_arm', 'diagnosis']).groupby(['study_arm']).size().max()>1:
+        print('\n=============== !! WARNING !! ===============\nMultiple diagnoses in the same study_arm')
+        print('Please check if they really are in the same study_arm')
+        print('If they are differently recruited, please separate the study_arm accordingly')

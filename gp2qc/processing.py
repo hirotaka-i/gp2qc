@@ -128,13 +128,3 @@ class GP2SampleManifesstProcessor:
         else:
             print("\nWARNING!! base_check on the modified dataframe.\n")
             base_check(self.df)
-            
-
-    def show_phenotype_summary(self):
-        """
-        Show a summary of the phenotype data in the processed DataFrame.
-        """
-        if not hasattr(self, 'df'):
-            raise ValueError("No data loaded. Please read_file_and_process first.")
-        else:
-            print(self.df.groupby(['study_arm', 'study_type', 'diagnosis', 'GP2_phenotype']).size())
