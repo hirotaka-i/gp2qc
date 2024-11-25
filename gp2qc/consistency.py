@@ -160,6 +160,17 @@ class StudyManifestHandler:
             # Additionally get the list of potentially missing GP2sampleID in the system (Lecacy Problem)
             # e.g. s1 was kept in the manifest but IDSTRACKER kept s2 because of the new sample getting s3.
             GP2sampleID_ignore = self.df_all[self.df_all.GP2ID.isin(GP2ID_to_resolve)].GP2sampleID
+
+        # update the GP2ID to the correct GP2ID
+        dfall = self.df_all.copy()
+        clinical_id_corrected_list_path='/content/drive/Shareddrives/EUR_GP2/CIWG/tools/clinical_id_corrected.csv'
+        clinical_id_corrected = pd.read_csv(clinical_id_corrected_list_path)[['GP2sampleID', 'clinical_id']].copy()
+        clinical_id_corrected_indexed = clinical_id_corrected.set_index('GP2sampleID')
+        dfall_indexed = dfall.set_index('GP2sampleID')
+        dfall_indexed.update(clinical_id_corrected_indexed)
+        dfall_updated = dfall_indexed.reset_index()
+
+        self.df_all = dfall_updated
         
         base_check(self.df_all)
         self.inconsistency = False  # Flag to indicate if inconsistencies are found
