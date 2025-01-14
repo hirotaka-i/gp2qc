@@ -51,7 +51,7 @@ def remove_sample_ids(ids, study_code):
             
             # Raise an error if there are sample IDs that are not found in the master file
             if ids_not_in_master:
-                raise ValueError(f"The following sample IDs are not in the master file: {ids_not_in_master}")
+                raise ValueError(f"The following {len(ids_not_in_master)} sample IDs are not in the master file: {ids_not_in_master}")
             
             # Remove the IDs that exist in both sets
             for sample_id in ids_to_remove:
