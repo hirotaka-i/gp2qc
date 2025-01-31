@@ -51,9 +51,6 @@ def check_idstracker(bucket, study, df):
     blob_id = bucket.blob('IDSTRACKER/GP2IDSMAPPER.json')
     masterids = json.loads(blob_id.download_as_text())
     
-    if study in ["PPMI-N", "PPMI-G"]:
-        check_ppmi_consistency(masterids)
-    
     if study not in masterids:
         raise ValueError(f"The study '{study}' was not found in GP2IDSMAPPER.json.")
     
@@ -70,15 +67,17 @@ def check_idstracker(bucket, study, df):
         'clinical_id': clinical_ids
     })
     
-    # modify for PPMI
+    # modify for PPMI: 1. Consistency check and then prepare both PPMI-N and PPMI-G
     if study in ["PPMI-N", "PPMI-G"]:
+        check_ppmi_consistency(masterids)
         if study == "PPMI-N":
             to_replace = "PPMI-G_"
         elif study == "PPMI-G":
             to_replace = "PPMI-N_"
         tt2 = tt.copy()
-        tt2['GP2sampleID'] = tt2['GP2sampleID'].str.replace(to_replace, f'{study}_')
+        tt2['GP2sampleID'] = tt2['GP2sampleID'].str.replace(f'{study}_', to_replace)
         tt = pd.concat([tt, tt2], ignore_index=True)
+        df = df[df.study!='PPMI'] # Need to be removed once PPMI has been removed.
     
     testmerge = df.merge(tt, on=['sample_id', 'GP2sampleID', 'clinical_id'], how='left', indicator=True)
     df_unmatched = testmerge[testmerge['_merge'] == 'left_only']
