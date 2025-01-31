@@ -54,10 +54,14 @@ class StudyManifestHandler:
         except FileNotFoundError:
             raise FileNotFoundError(f"Master sheet path '{self.master_sheet_path}' not found.")
         
-        mf = mf[mf['study'] == self.study]
+        if self.study in ['PPMI-N', 'PPMI-G']:
+            mf = mf[mf['study'].isin(['PPMI-N', 'PPMI-G', 'PPMI'])] # remove 'PPMI' in the future
+            folder_path = f'/content/drive/Shareddrives/EUR_GP2/CIWG/sample_manifest/finalized/PPMI'
+        else:
+            mf = mf[mf['study'] == self.study]
+            folder_path = f'/content/drive/Shareddrives/EUR_GP2/CIWG/sample_manifest/finalized/{self.study}'
+            
         mid_in_mf = mf['manifest_id'].unique()
-
-        folder_path = f'/content/drive/Shareddrives/EUR_GP2/CIWG/sample_manifest/finalized/{self.study}'
 
         if not os.path.exists(folder_path):
             raise FileNotFoundError(f"Finalized folder path '{folder_path}' not found. Please create the folder.")
@@ -112,12 +116,17 @@ class StudyManifestHandler:
                 raise ValueError("Please do load_previous_manifests > combine_study_manifests before proceeding.")
         
         else:
-            if len(np.union1d(df.study.unique(), self.mf.study.unique())) > 1:
+            if df.study.unique() in ['PPMI-N', 'PPMI-G']:
+                if len(np.setdiff1d(self.mf.study.unique(),['PPMI-N', 'PPMI-G', 'PPMI']))>0:
+                    raise ValueError('PPMI study cannot be merged with non-PPMI studies')
+            elif len(np.union1d(df.study.unique(), self.mf.study.unique())) > 1:
                 raise ValueError('Different study names detected')
 
             mids = df.manifest_id.unique()
+            
             if len(mids) > 1:
                 raise ValueError(f'More than one mid in the current df: {mids}')
+            
             else:
                 mid = mids[0]
                 print(f'manifest_id of the current df: {mid}')
@@ -161,7 +170,7 @@ class StudyManifestHandler:
             # e.g. s1 was kept in the manifest but IDSTRACKER kept s2 because of the new sample getting s3.
             GP2sampleID_ignore = self.df_all[self.df_all.GP2ID.isin(GP2ID_to_resolve)].GP2sampleID
 
-        # update the GP2ID to the correct GP2ID
+        # Correct the clinical_id based on the GP2sampleID
         dfall = self.df_all.copy()
         clinical_id_corrected_list_path='/content/drive/Shareddrives/EUR_GP2/CIWG/tools/clinical_id_corrected.csv'
         clinical_id_corrected = pd.read_csv(clinical_id_corrected_list_path)[['GP2sampleID', 'clinical_id']].copy()
@@ -171,8 +180,14 @@ class StudyManifestHandler:
         dfall_updated = dfall_indexed.reset_index()
 
         self.df_all = dfall_updated
-        
-        base_check(self.df_all)
+
+        if len(np.setdiff1d(['PPMI-N', 'PPMI-G', 'PPMI'], self.df_all.study.unique()))>1:
+            df_all_ppmi = self.df_all.copy()
+            df_all_ppmi['study'] = 'PPMI' # to overcome the basecheck
+            base_check(df_all_ppmi)
+        else:
+            base_check(self.df_all)
+            
         self.inconsistency = False  # Flag to indicate if inconsistencies are found
         for col_to_check in columns_to_check:
             dt_prob = find_inconsistency(self.df_all, col_to_check)
