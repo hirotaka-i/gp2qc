@@ -9,7 +9,7 @@ from .check_idstracker import check_idstracker
 #### Sub function to the "check_inconsistencies" function
 def find_inconsistency(df, col_to_check):
     # Identify GP2IDs with inconsistent values
-    inconsistent_gp2ids = df.groupby('GP2ID')[col_to_check].nunique(dropna=False)
+    inconsistent_gp2ids = df.groupby('GP2ID')[col_to_check].nunique(dropna=False).fillna('MISSING')
     inconsistent_gp2ids = inconsistent_gp2ids[inconsistent_gp2ids > 1].index.tolist()
 
     # Filter only those rows with inconsistent GP2IDs
@@ -55,6 +55,7 @@ class StudyManifestHandler:
             raise FileNotFoundError(f"Master sheet path '{self.master_sheet_path}' not found.")
         
         if self.study in ['PPMI-N', 'PPMI-G']:
+            print(f'For {self.study}, PPMI finalized folder will be searched')
             mf = mf[mf['study'].isin(['PPMI-N', 'PPMI-G', 'PPMI'])] # remove 'PPMI' in the future
             folder_path = f'/content/drive/Shareddrives/EUR_GP2/CIWG/sample_manifest/finalized/PPMI'
         else:
@@ -181,10 +182,11 @@ class StudyManifestHandler:
 
         self.df_all = dfall_updated
 
-        if len(np.setdiff1d(['PPMI-N', 'PPMI-G', 'PPMI'], self.df_all.study.unique()))>1:
+        if len(np.intersect1d(['PPMI-N', 'PPMI-G', 'PPMI'], self.df_all.study.unique()))>0:
+            # Need to modify study to overcome the base_check (ons study and clinical id check per study)
             df_all_ppmi = self.df_all.copy()
-            df_all_ppmi['study'] = 'PPMI' # to overcome the basecheck
-            base_check(df_all_ppmi)
+            df_all_ppmi['study'] = 'PPMI' 
+            base_check(df_all_ppmi) # PPMI-N/G assignment inconsistency will be detected here
         else:
             base_check(self.df_all)
             
