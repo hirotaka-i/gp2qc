@@ -31,15 +31,17 @@ def check_ppmi_consistency(masterids):
         print(inconsistent_entries)
         raise ValueError("Mismatch found between PPMI-N and PPMI-G sample_id and clinical_id mappings.")
     
-    expected_gp2sampleid_n = ppmin_df['clinical_id'].apply(lambda x: f"PPMI-N_{x}")
-    expected_gp2sampleid_g = ppmig_df['clinical_id'].apply(lambda x: f"PPMI-G_{x}")
+    expected_gp2id_n = ppmin_df['clinical_id'].apply(lambda x: f"PPMI-N_{x}")
+    expected_gp2id_g = ppmig_df['clinical_id'].apply(lambda x: f"PPMI-G_{x}")
     
-    inconsistent_gp2sampleid_n = ppmin_df[ppmin_df['GP2sampleID'] != expected_gp2sampleid_n]
-    inconsistent_gp2sampleid_g = ppmig_df[ppmig_df['GP2sampleID'] != expected_gp2sampleid_g]
+    inconsistent_gp2sampleid_n = ppmin_df[ppmin_df['GP2sampleID'].str.split('_s',expand=True)[0] != expected_gp2id_n]
+    inconsistent_gp2sampleid_g = ppmig_df[ppmig_df['GP2sampleID'].str.split('_s',expand=True)[0] != expected_gp2id_g]
     
     if not inconsistent_gp2sampleid_n.empty or not inconsistent_gp2sampleid_g.empty:
         print(pd.concat([inconsistent_gp2sampleid_n, inconsistent_gp2sampleid_g]))
         raise ValueError("Inconsistent GP2sampleID format detected for PPMI-N or PPMI-G.")
+    else:
+      print('PPMI-N and PPMI-G sample_id, clinical_id, and GP2sampleID mappings are consistent.')
 
 def check_idstracker(bucket, study, df):
     """
