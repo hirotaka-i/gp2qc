@@ -38,6 +38,12 @@ def check_idstracker(bucket, study, df):
         'clinical_id': clinical_ids
     })
 
+    # Modify for PPMI-N/G
+    if study=='PPMI-N':
+        tt['GP2sampleID'] = tt['GP2sampleID'].replace('PPMI-G_', 'PPMI-N_')
+    elif study=='PPMI-G':
+        tt['GP2sampleID'] = tt['GP2sampleID'].replace('PPMI-N_', 'PPMI-G_')
+
     # Merge with the current manifest
     testmerge = df.merge(tt, on=['sample_id', 'GP2sampleID', 'clinical_id'], how='left', indicator=True)
     df_unmatched = testmerge[testmerge['_merge'] == 'left_only']
