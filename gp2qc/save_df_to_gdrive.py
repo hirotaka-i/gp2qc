@@ -22,8 +22,11 @@ def save_df_to_gdrive(processor, root_path='/content/drive/Shareddrives/EUR_GP2/
     # Construct the full save path
     if processor.save_file_name != file_name[0]:
         raise ValueError(f'{processor.save_file_name} is different from the filename in the df: {file_name[0]}')
-    
-    save_path = os.path.join(root_path, processor.study, processor.save_file_name)
+
+    if processor.study in ["PPMI-N", "PPMI-G"]:
+        save_path = os.path.join(root_path, 'PPMI', processor.save_file_name)
+    else:
+        save_path = os.path.join(root_path, processor.study, processor.save_file_name)
 
     # Check if the subdirectory exists, if not, raise an error
     subdirectory_path = os.path.dirname(save_path)
