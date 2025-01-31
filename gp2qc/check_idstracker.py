@@ -38,7 +38,7 @@ def check_ppmi_consistency(masterids):
     inconsistent_gp2sampleid_g = ppmig_df[ppmig_df['GP2sampleID'] != expected_gp2sampleid_g]
     
     if not inconsistent_gp2sampleid_n.empty or not inconsistent_gp2sampleid_g.empty:
-        print(inconsistent_gp2sampleid_n.append(inconsistent_gp2sampleid_g))
+        print(pd.concat([inconsistent_gp2sampleid_n, inconsistent_gp2sampleid_g]))
         raise ValueError("Inconsistent GP2sampleID format detected for PPMI-N or PPMI-G.")
 
 def check_idstracker(bucket, study, df):
