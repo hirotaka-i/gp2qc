@@ -65,21 +65,23 @@ class GP2SampleManifesstProcessor:
         # Validate the input and return the chosen file
         try:
             file_index = int(file_choice) - 1  # Convert input to index
-            if 0 <= file_index < len(file_list):
-                self.file_name = file_list[file_index]
-                print(f"Load: {self.file_name}")
-                # Retrieve the file from the bucket
-                blob = self.bucket.blob(self.file_name)
-                content = blob.download_as_bytes()
-
-                # Read the content as an Excel file
-                self.df = pd.read_excel(BytesIO(content), dtype={"sample_id": 'string', 'clinical_id': 'string'})
-
-            else:
-                print("Invalid selection. Please choose a valid file number.")
         except ValueError:
             print("Invalid input. Please enter a number.")
 
+        if not (0 <= file_index < len(file_list)):
+            print("Invalid selection. Please choose a valid file number.")
+
+        self.file_name = file_list[file_index]
+        print(f"Load: {self.file_name}")
+        blob = self.bucket.blob(self.file_name)
+        content = blob.download_as_bytes()
+
+        try:
+            self.df = pd.read_excel(BytesIO(content), dtype={"sample_id": 'string', 'clinical_id': 'string'})
+        except Exception as e:
+            print("An error occurred while reading the file. Check the data in the google cloud")
+            print(e)
+        
     def assign_manifest_id(self, mid):
         """
         Read a file from Google Cloud Storage and process it into a pandas DataFrame.
