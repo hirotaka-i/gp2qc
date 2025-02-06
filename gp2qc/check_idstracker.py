@@ -77,7 +77,6 @@ def check_idstracker(bucket, study, df):
         tt2 = tt.copy()
         tt2['GP2sampleID'] = tt2['GP2sampleID'].str.replace(f'{study}_', to_replace)
         tt = pd.concat([tt, tt2], ignore_index=True)
-        df = df[df.study!='PPMI'] # Need to be removed once PPMI has been removed.
     
     testmerge = df.merge(tt, on=['sample_id', 'GP2sampleID', 'clinical_id'], how='left', indicator=True)
     df_unmatched = testmerge[testmerge['_merge'] == 'left_only']
