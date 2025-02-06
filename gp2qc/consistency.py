@@ -56,7 +56,7 @@ class StudyManifestHandler:
         
         if self.study in ['PPMI-N', 'PPMI-G']:
             print(f'For {self.study}, PPMI finalized folder will be searched')
-            mf = mf[mf['study'].isin(['PPMI-N', 'PPMI-G', 'PPMI'])] # remove 'PPMI' in the future
+            mf = mf[mf['study'].isin(['PPMI-N', 'PPMI-G'])]
             folder_path = f'/content/drive/Shareddrives/EUR_GP2/CIWG/sample_manifest/finalized/PPMI'
         else:
             mf = mf[mf['study'] == self.study]
@@ -118,7 +118,7 @@ class StudyManifestHandler:
         
         else:
             if df.study.unique() in ['PPMI-N', 'PPMI-G']:
-                if len(np.setdiff1d(self.mf.study.unique(),['PPMI-N', 'PPMI-G', 'PPMI']))>0:
+                if len(np.setdiff1d(self.mf.study.unique(),['PPMI-N', 'PPMI-G']))>0:
                     raise ValueError('PPMI study cannot be merged with non-PPMI studies')
             elif len(np.union1d(df.study.unique(), self.mf.study.unique())) > 1:
                 raise ValueError('Different study names detected')
@@ -182,8 +182,8 @@ class StudyManifestHandler:
 
         self.df_all = dfall_updated
 
-        if len(np.intersect1d(['PPMI-N', 'PPMI-G', 'PPMI'], self.df_all.study.unique()))>0:
-            # Need to modify study to overcome the base_check (ons study and clinical id check per study)
+        if len(np.intersect1d(['PPMI-N', 'PPMI-G'], self.df_all.study.unique()))>0:
+            # Need to modify study to overcome the base_check (one study and clinical id check per study)
             df_all_ppmi = self.df_all.copy()
             df_all_ppmi['study'] = 'PPMI' 
             base_check(df_all_ppmi) # PPMI-N/G assignment inconsistency will be detected here
