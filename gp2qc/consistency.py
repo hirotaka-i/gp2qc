@@ -15,6 +15,10 @@ def find_inconsistency(df, col_to_check):
     # Filter only those rows with inconsistent GP2IDs
     t = df[df.GP2ID.isin(inconsistent_gp2ids)][['GP2ID', 'SampleRepNo', col_to_check]].copy()
 
+    # get the last value
+    t_last = t.sort_values('SampleRepNo').drop_duplicates(subset=['GP2ID'], keep='last')
+    t_last['replacing_value'] = t_last[col_to_check]
+
     # pivot the table
     t_pivot = t.pivot(index='GP2ID', columns='SampleRepNo', values=col_to_check)
     t_pivot.columns = [f"{col_to_check}_{col}" for col in t_pivot.columns]
@@ -22,6 +26,7 @@ def find_inconsistency(df, col_to_check):
     t_prob = t_pivot
     t_prob_process = t_prob.copy() # process changes the row of t_prob so keep the original
     t_prob = t_prob.reset_index()
+    t_prob = t_prob.merge(t_last[['GP2ID', 'replacing_value']], on='GP2ID', how='left')
     t_prob['study'] = t_prob.GP2ID.str.split('_').str[0]
     return t_prob
 
@@ -195,10 +200,15 @@ class StudyManifestHandler:
             dt_prob = find_inconsistency(self.df_all, col_to_check)
             # limit to the current df
             dt_prob = dt_prob[dt_prob.GP2ID.isin(self.processor.df.GP2ID)].copy()
+            dt_prob_long = self.df_all[self.df_all.GP2ID.isin(dt_prob.GP2ID)].copy()[[
+                'GP2sampleID', 'GP2ID', 'sample_id', 'clinical_id', 'manifest_id', col_to_check
+            ]]
             if len(dt_prob) > 0:
                 file_path = f'inconsistency_{col_to_check}.csv'
+                file_path2 = f'inconsistency_{col_to_check}_long.csv'
                 print(f'FAIL: {col_to_check} {len(dt_prob)} entries are inconsistent --> File saved')
                 dt_prob.to_csv(file_path, index=False)
+                dt_prob_long.to_csv(file_path2, index=False)
                 self.inconsistency = True
             else:
                 print(f'PASS: {col_to_check}')
