@@ -202,10 +202,10 @@ class StudyManifestHandler:
             dt_prob = dt_prob[dt_prob.GP2ID.isin(self.processor.df.GP2ID)].copy()
             dt_prob_long = self.df_all[self.df_all.GP2ID.isin(dt_prob.GP2ID)].copy()[[
                 'GP2sampleID', 'GP2ID', 'sample_id', 'clinical_id', 'manifest_id', col_to_check
-            ]]
+            ]].sort_values('GP2sampleID')
             if len(dt_prob) > 0:
                 file_path = f'inconsistency_{col_to_check}.csv'
-                file_path2 = f'inconsistency_{col_to_check}_long.csv'
+                file_path2 = f'long_inconsistency_{col_to_check}_long.csv'
                 print(f'FAIL: {col_to_check} {len(dt_prob)} entries are inconsistent --> File saved')
                 dt_prob.to_csv(file_path, index=False)
                 dt_prob_long.to_csv(file_path2, index=False)
