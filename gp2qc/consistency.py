@@ -205,7 +205,7 @@ class StudyManifestHandler:
             ]].sort_values('GP2sampleID')
             if len(dt_prob) > 0:
                 file_path = f'inconsistency_{col_to_check}.csv'
-                file_path2 = f'long_inconsistency_{col_to_check}_long.csv'
+                file_path2 = f'long_inconsistency_{col_to_check}.csv'
                 print(f'FAIL: {col_to_check} {len(dt_prob)} entries are inconsistent --> File saved')
                 dt_prob.to_csv(file_path, index=False)
                 dt_prob_long.to_csv(file_path2, index=False)
