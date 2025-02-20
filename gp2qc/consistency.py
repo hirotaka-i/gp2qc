@@ -30,6 +30,9 @@ def find_inconsistency(df, col_to_check):
     t_prob['study'] = t_prob.GP2ID.str.split('_').str[0]
     return t_prob
 
+original_col_dict = {'family_history_for_qc':'family_history', 'region_for_qc':'region',
+                     'race_for_qc':'race', 'biological_sex_for_qc':'sex'}
+
 class StudyManifestHandler:
     def __init__(self, processor, master_sheet_path, bucket_name='eu-samplemanifest'):
         """
@@ -200,9 +203,18 @@ class StudyManifestHandler:
             dt_prob = find_inconsistency(self.df_all, col_to_check)
             # limit to the current df
             dt_prob = dt_prob[dt_prob.GP2ID.isin(self.processor.df.GP2ID)].copy()
-            dt_prob_long = self.df_all[self.df_all.GP2ID.isin(dt_prob.GP2ID)].copy()[[
-                'GP2sampleID', 'GP2ID', 'sample_id', 'clinical_id', 'manifest_id', col_to_check
-            ]].sort_values('GP2sampleID')
+
+            # dt_prob_long
+            if col_to_check in original_col_dict.keys():
+                dt_prob_long = self.df_all[self.df_all.GP2ID.isin(dt_prob.GP2ID)].copy()[[
+                    'GP2sampleID', 'GP2ID', 'sample_id', 'clinical_id', 'manifest_id', 
+                    original_col_dict[col_to_check], col_to_check
+                ]].sort_values('GP2sampleID')
+            else:
+                dt_prob_long = self.df_all[self.df_all.GP2ID.isin(dt_prob.GP2ID)].copy()[[
+                    'GP2sampleID', 'GP2ID', 'sample_id', 'clinical_id', 'manifest_id', col_to_check
+                ]].sort_values('GP2sampleID')
+                
             if len(dt_prob) > 0:
                 file_path = f'inconsistency_{col_to_check}.csv'
                 file_path2 = f'long_inconsistency_{col_to_check}.csv'
