@@ -216,6 +216,11 @@ class StudyManifestHandler:
                         'GP2sampleID', 'GP2ID', 'sample_id', 'clinical_id', 'manifest_id', 
                         original_col_dict[col_to_check], col_to_check
                     ]].sort_values('GP2sampleID').to_csv(file_path2, index=False)
+                elif col_to_check in ['study_type', 'GP2_phenotype']:
+                    dt_prob_long = self.df_all[self.df_all.GP2ID.isin(dt_prob.GP2ID)].copy()[[
+                        'GP2sampleID', 'GP2ID', 'sample_id', 'clinical_id', 'manifest_id', 
+                        'study_arm', 'study_type', 'diagnosis', 'GP2_phenotype'
+                    ]].sort_values('GP2sampleID').to_csv(file_path2, index=False)
                 else:
                     dt_prob_long = self.df_all[self.df_all.GP2ID.isin(dt_prob.GP2ID)].copy()[[
                         'GP2sampleID', 'GP2ID', 'sample_id', 'clinical_id', 'manifest_id', col_to_check
