@@ -30,7 +30,7 @@ def find_inconsistency(df, col_to_check):
     t_prob['study'] = t_prob.GP2ID.str.split('_').str[0]
     return t_prob
 
-original_col_dict = {'family_history_for_qc':'family_history', 'region_for_qc':'region',
+original_col_dict = {'family_history_for_qc':'family_history_pd', 'region_for_qc':'region',
                      'race_for_qc':'race', 'biological_sex_for_qc':'sex'}
 
 class StudyManifestHandler:
