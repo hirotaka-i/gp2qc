@@ -146,7 +146,7 @@ class StudyManifestHandler:
             print(f'Combined with: {self.mf.manifest_id.unique()}')
             df_all = pd.concat([self.mf, df], ignore_index=True)
 
-            rm_cols = np.intersect1d(df_all.columns, ['GP2_PHENO', 'GP2_family_id', 'alternative_id3', 'alternative_id4'])
+            rm_cols = np.intersect1d(df_all.columns, ['GP2_PHENO', 'GP2_family_id', 'alternative_id3', 'alternative_id4', 'GDPR?'])
             if len(rm_cols) > 0:
                 df_all = df_all.drop(columns=rm_cols)
 
