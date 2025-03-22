@@ -2,47 +2,6 @@ import json
 import pandas as pd
 from google.cloud import storage
 
-def check_ppmi_consistency(masterids):
-    """
-    Check the consistency of PPMI-N and PPMI-G sample_id, clinical_id, and GP2sampleID mappings.
-    """
-    if "PPMI-N" not in masterids or "PPMI-G" not in masterids:
-        raise ValueError("Both PPMI-N and PPMI-G must be present in GP2IDSMAPPER.json for consistency check.")
-    
-    master_ppmin = masterids["PPMI-N"]
-    master_ppmig = masterids["PPMI-G"]
-    
-    ppmin_df = pd.DataFrame({
-        'sample_id': list(master_ppmin.keys()),
-        'clinical_id': [v[1] for v in master_ppmin.values()],
-        'GP2sampleID': [v[0] for v in master_ppmin.values()]
-    })
-    
-    ppmig_df = pd.DataFrame({
-        'sample_id': list(master_ppmig.keys()),
-        'clinical_id': [v[1] for v in master_ppmig.values()],
-        'GP2sampleID': [v[0] for v in master_ppmig.values()]
-    })
-    
-    merged_master = ppmin_df.merge(ppmig_df, on=['sample_id', 'clinical_id'], how='outer', indicator=True)
-    inconsistent_entries = merged_master[merged_master['_merge'] != 'both']
-    
-    if not inconsistent_entries.empty:
-        print(inconsistent_entries)
-        raise ValueError("Mismatch found between PPMI-N and PPMI-G sample_id and clinical_id mappings.")
-    
-    expected_gp2id_n = ppmin_df['clinical_id'].apply(lambda x: f"PPMI-N_{x}")
-    expected_gp2id_g = ppmig_df['clinical_id'].apply(lambda x: f"PPMI-G_{x}")
-    
-    inconsistent_gp2sampleid_n = ppmin_df[ppmin_df['GP2sampleID'].str.split('_s',expand=True)[0] != expected_gp2id_n]
-    inconsistent_gp2sampleid_g = ppmig_df[ppmig_df['GP2sampleID'].str.split('_s',expand=True)[0] != expected_gp2id_g]
-    
-    if not inconsistent_gp2sampleid_n.empty or not inconsistent_gp2sampleid_g.empty:
-        print(pd.concat([inconsistent_gp2sampleid_n, inconsistent_gp2sampleid_g]))
-        raise ValueError("Inconsistent GP2sampleID format detected for PPMI-N or PPMI-G.")
-    else:
-      print('PPMI-N and PPMI-G sample_id, clinical_id, and GP2sampleID mappings are consistent.')
-
 def check_idstracker(bucket, study, df):
     """
     Merge the current manifest (df) with the GP2 ID data from GP2IDSMAPPER.json.
@@ -50,11 +9,12 @@ def check_idstracker(bucket, study, df):
     
     blob_id = bucket.blob('IDSTRACKER/GP2IDSMAPPER.json')
     masterids = json.loads(blob_id.download_as_text())
-    
-    if study not in masterids:
+
+    study_k = "PPMI" if study in ["PPMI-N", "PPMI-G"] else study # PPMI-N/G's GP2ID stored as PPMI
+    if study_k not in masterids:
         raise ValueError(f"The study '{study}' was not found in GP2IDSMAPPER.json.")
     
-    t = masterids[study]
+    t = masterids[study_k]
     
     keys = list(t.keys())
     values_split = [value for value in t.values()]
@@ -68,15 +28,8 @@ def check_idstracker(bucket, study, df):
     })
     
     # modify for PPMI: 1. Consistency check and then prepare both PPMI-N and PPMI-G
-    if study in ["PPMI-N", "PPMI-G"]:
-        check_ppmi_consistency(masterids)
-        if study == "PPMI-N":
-            to_replace = "PPMI-G_"
-        elif study == "PPMI-G":
-            to_replace = "PPMI-N_"
-        tt2 = tt.copy()
-        tt2['GP2sampleID'] = tt2['GP2sampleID'].str.replace(f'{study}_', to_replace)
-        tt = pd.concat([tt, tt2], ignore_index=True)
+    if study in ["PPMI-N", "PPMI-G"]: # modify GP2ID to match with df
+        tt['GP2sampleID'] = tt['GP2sampleID'].str.replace('PPMI_', f'{study}_')
     
     testmerge = df.merge(tt, on=['sample_id', 'GP2sampleID', 'clinical_id'], how='left', indicator=True)
     df_unmatched = testmerge[testmerge['_merge'] == 'left_only']
