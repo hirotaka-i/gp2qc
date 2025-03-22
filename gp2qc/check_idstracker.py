@@ -30,6 +30,7 @@ def check_idstracker(bucket, study, df):
     # modify for PPMI: 1. Consistency check and then prepare both PPMI-N and PPMI-G
     if study in ["PPMI-N", "PPMI-G"]: # modify GP2ID to match with df
         tt['GP2sampleID'] = tt['GP2sampleID'].str.replace('PPMI_', f'{study}_')
+        df = df[df.study==study].copy() # only check the current df with the same "PPMI-N/G"
     
     testmerge = df.merge(tt, on=['sample_id', 'GP2sampleID', 'clinical_id'], how='left', indicator=True)
     df_unmatched = testmerge[testmerge['_merge'] == 'left_only']
