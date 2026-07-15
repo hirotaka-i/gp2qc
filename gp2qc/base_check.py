@@ -65,7 +65,7 @@ def validate_allowed_values(df):
         'study_type': ['Case(/Control)', 'Prodromal', 'Genetically Enriched', 'Population Cohort', 'Brain Bank', 'Monogenic'],
         'biological_sex_for_qc': ['Male', 'Female', 'Other/Unknown/Not Reported'],
         'race_for_qc': ['American Indian or Alaska Native', 'Asian', 'White',
-                        'Black or African American', 'Multi-racial', 'Native Hawaiian or Other Pacific Islander',
+                        'Black or African American', 'Hispanic or Latino', 'Multi-racial', 'Native Hawaiian or Other Pacific Islander',
                         'Other', 'Unknown', 'Not Reported'],
         'family_history_for_qc': ['Yes', 'No', 'Not Reported', 'Unknown'],
         # 'family_history_other_for_qc': ['Yes', 'No', 'Not Reported', 'Unknown'],
@@ -153,6 +153,7 @@ def base_check(df, master_file=False):
         "age", "age_of_onset", "age_at_diagnosis", "age_at_death", "age_at_last_follow_up",
         "family_history_pd", "family_history_other", "family_history_details", "region",
         "comment", "alternative_id1", "alternative_id2", 'GP2_phenotype_for_qc', 'filename',
+        "modality",
     ]
 
     # Perform checks
