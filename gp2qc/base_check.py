@@ -153,12 +153,12 @@ def base_check(df, master_file=False):
         "age", "age_of_onset", "age_at_diagnosis", "age_at_death", "age_at_last_follow_up",
         "family_history_pd", "family_history_other", "family_history_details", "region",
         "comment", "alternative_id1", "alternative_id2", 'GP2_phenotype_for_qc', 'filename',
-        "modality",
     ]
+    optional_cols = ["modality"]  # added during processing, not required at submission
 
     # Perform checks
     check_columns_exist(df, all_cols)
-    check_unexpected_columns(df, all_cols)
+    check_unexpected_columns(df, all_cols + optional_cols)
     check_missing_data(df, required_cols)
     
     if not master_file: # skip if master_file
